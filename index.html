@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Excel sql</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/colors.css">
+    <link rel="icon" type="image/svg+xml" href="resources/avatar.svg">
+</head>
+
+<body style="background-color: var(--bg-color);">
+    <div id="main">
+        <h1>Excel sql</h1>
+        <h3 id="how-to-use">How to use</h3>
+        <ol>
+            <li>For each xlsx <i>input</i> file:<ul>
+                    <li>Assign a designated table name</li>
+                    <li>Choose and load file</li>
+                </ul>
+            </li>
+            <li>Write sql query</li>
+            <li>Download sql result in xlsx format</li>
+        </ol>
+        <h3>Inputs</h3>
+        <div id="load-files-list" class="panel">
+            <input id="sql-name" type="text" value="t1" placeholder="in-script name">
+            <input id="load-file" type="file">
+        </div>
+        <h3>File preview</h3>
+        <div id="preview">
+        </div>
+        <h3>Sql script</h3>
+        <div class="panel">
+            <textarea id="sql-script">select * from t1</textarea>
+        </div>
+        <div style="margin-top: 0.5em;">
+            <button id="run-sql-btn">Run sql</button>
+            <input id="sql-result-file-name" type="text" value="result.xlsx" placeholder="sql result file">
+        </div>
+    </div>
+    <!-- <footer>Made by Al.Kononov <a class="link" href="https://github.com/llesha">GitHub</a>.</footer> -->
+    <script src="/js/lib/xlsx.full.min.js"></script>
+    <script type="module" src="js/loader.js"></script>
+    <script type="module" src="js/index.js"></script>
+    <script type="module" src="js/filesystem.js"></script>
+</body>
+
+</html>
