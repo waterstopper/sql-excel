@@ -14,7 +14,6 @@ function previewTable(table) {
     }
     tableElement.append(body)
 
-    console.log(tableElement)
     document.getElementById("preview").append(tableElement)
 }
 

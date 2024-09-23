@@ -6,7 +6,6 @@ const worker = new Worker("/js/lib/worker.sql-wasm.js");
 let scheduled = []
 
 worker.onmessage = event => {
-    console.log(event.data)
     window.workerCanPostMessage = true;
     if(window.exportSqlResult) {
         exportXlsx(event.data.results[0].columns, event.data.results[0].values)
@@ -58,7 +57,6 @@ function scheduleExec(sql) {
 let sqlScript = byId("sql-script")
 byId("run-sql-btn").onclick = () => {
     window.exportSqlResult = true
-    console.log(sqlScript.value)
     postSqlMessageWorker(sqlScript.value)
 }
 
@@ -66,12 +64,11 @@ let sqlResultFileName = byId("sql-result-file-name")
 
 function exportXlsx(columnNames, rows) {
     rows.unshift(columnNames)
-    console.log(rows)
+
     const sheet = XLSX.utils.aoa_to_sheet(rows);
     const book = XLSX.utils.book_new();
 
     XLSX.utils.book_append_sheet(book, sheet, "Dates");
-
     XLSX.writeFile(book, sqlResultFileName.value);
 }
 
