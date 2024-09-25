@@ -1,7 +1,7 @@
 import { byId } from "./utils.js";
 
 window.workerCanPostMessage = true
-const worker = new Worker("/js/worker.sql-wasm.js");
+const worker = new Worker("/js/workersql.js");
 
 let scheduled = []
 
