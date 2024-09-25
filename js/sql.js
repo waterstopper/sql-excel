@@ -1,63 +1,79 @@
 import { byId } from "./utils.js";
 
-window.workerCanPostMessage = true
-const worker = new Worker("/js/workersql.js");
 
-let scheduled = []
+const initSqlJs = window.initSqlJs;
+const SQL = await initSqlJs({
+    // Required to load the wasm binary asynchronously. Of course, you can host it wherever you want
+    // You can omit locateFile completely when running in node
+    locateFile: file => `https://sql.js.org/dist/${file}`
+});
 
-worker.onmessage = event => {
-    window.workerCanPostMessage = true;
-    if(window.exportSqlResult) {
-        exportXlsx(event.data.results[0].columns, event.data.results[0].values)
-    }
-    window.exportSqlResult = false
-    execScheduled()
-}
-worker.onerror = err => console.log("Worker error: ", err);
+// Create a database
+const db = new SQL.Database();
 
-let msgId = 0;
+// window.workerCanPostMessage = true
+// const worker = new Worker("ajax/libs/sql.js/1.11.0/worker.sql-wasm.js");
 
-function postSqlMessageWorker(cmd) {
-    if (window.workerCanPostMessage) {
-        window.workerCanPostMessage = false;
-        worker.postMessage({
-            id: msgId++,
-            action: "exec",
-            sql: cmd
-        });
-    } else {
-        scheduleExec(cmd)
-    }
-}
+// let scheduled = []
 
-window.postSqlMessageWorker = postSqlMessageWorker
+// worker.onmessage = event => {
+//     window.workerCanPostMessage = true;
+//     if (window.exportSqlResult) {
+//         exportXlsx(event.data.results[0].columns, event.data.results[0].values)
+//     }
+//     window.exportSqlResult = false
+//     execScheduled()
+// }
+// worker.onerror = err => console.log("Worker error: ", err);
 
-function execScheduled() {
-    if (scheduled.length == 0) {
-        return
-    }
-    let scheduledTask = scheduled.shift()
-    postSqlMessageWorker(scheduledTask)
+// let msgId = 0;
 
-}
+// function postSqlMessageWorker(cmd) {
+//     if (window.workerCanPostMessage) {
+//         window.workerCanPostMessage = false;
+//         worker.postMessage({
+//             id: msgId++,
+//             action: "exec",
+//             sql: cmd
+//         });
+//     } else {
+//         scheduleExec(cmd)
+//     }
+// }
+
+// window.postSqlMessageWorker = postSqlMessageWorker
+
+// function execScheduled() {
+//     if (scheduled.length == 0) {
+//         return
+//     }
+//     let scheduledTask = scheduled.shift()
+//     postSqlMessageWorker(scheduledTask)
+
+// }
 
 function createAndFillTable(table) {
     let columnNames = table.columnNames.map(e => `${e} varchar(255)`).join()
     let createQuery = `CREATE TABLE ${table.name} (${columnNames})`
     let tableFillQuery = `INSERT INTO ${table.name} VALUES\n ${table.rows.map(li => "(" + li.join() + ")").join(",\n")};`
 
-    postSqlMessageWorker(createQuery)    
-    postSqlMessageWorker(tableFillQuery)
+    db.run(createQuery)
+    db.run(tableFillQuery)
+    // postSqlMessageWorker(createQuery)
+    // postSqlMessageWorker(tableFillQuery)
 }
 
-function scheduleExec(sql) {
-    scheduled.push(sql)
-}
+// function scheduleExec(sql) {
+//     scheduled.push(sql)
+// }
 
 let sqlScript = byId("sql-script")
 byId("run-sql-btn").onclick = () => {
-    window.exportSqlResult = true
-    postSqlMessageWorker(sqlScript.value)
+    // window.exportSqlResult = true
+    // postSqlMessageWorker(sqlScript.value)
+
+    const result = db.exec(sqlScript.value)
+    exportXlsx(result[0].columns, result[0].values)
 }
 
 let sqlResultFileName = byId("sql-result-file-name")
