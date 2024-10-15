@@ -60,6 +60,12 @@ const db = new SQL.Database();
 function createAndFillTable(table) {
     let columnNames = table.columnNames.map(e => `${e} varchar(255)`).join()
     let createQuery = `CREATE TABLE ${table.name} (${columnNames})`
+    let rowLength = 0
+
+    for (let i = 0; i < table.rows.length; i++) {
+        const row = table.rows[i];
+        rowLength = Math.max(row.length, rowLength);
+    }
 
     db.run(createQuery)
     let rowBatches = chunkArray(table.rows, BATCH_SIZE)
@@ -68,10 +74,13 @@ function createAndFillTable(table) {
             const arr = rowBatches[i][j];
             for (let k = 0; k < arr.length; k++) {
                 const element = arr[k];
-                if(typeof(element) === "undefined") {
+                if (typeof (element) === "undefined") {
                     rowBatches[i][j][k] = "null";
-                }         
-            }   
+                }
+            }
+            while(arr.length < rowLength) {
+                arr.push("null")
+            }
         }
         let tableFillQuery = `INSERT INTO ${table.name} VALUES\n ${rowBatches[i].map(li => "(" + li.join() + ")").join(",\n")};`
         console.log(tableFillQuery)
