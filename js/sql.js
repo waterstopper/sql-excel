@@ -60,14 +60,6 @@ const db = new SQL.Database();
 function createAndFillTable(table) {
     let columnNames = table.columnNames.map(e => `${e} varchar(255)`).join()
     let createQuery = `CREATE TABLE ${table.name} (${columnNames})`
-    let rowLength = 0
-
-    for (let i = 0; i < table.rows.length; i++) {
-        const row = table.rows[i];
-        if (typeof (row) !== "undefined") {
-            rowLength = Math.max(row.length, rowLength);
-        }
-    }
 
     db.run(createQuery)
     let rowBatches = chunkArray(table.rows, BATCH_SIZE)
@@ -82,7 +74,7 @@ function createAndFillTable(table) {
                         rowBatches[i][j][k] = "null";
                     }
                 }
-                while (arr.length < rowLength) {
+                while (arr.length < table.columnNames.length) {
                     arr.push("null")
                 }
             }
