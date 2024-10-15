@@ -27,6 +27,9 @@ function _createHead(columns) {
 
 function _createRow(row) {
     let rowElement = document.createElement("tr")
+    if(typeof(row) === "undefined") {
+        return rowElement
+    }
     let rowElems = row.map(e => `<td>${e}</td>`).join("\n")
     rowElement.innerHTML = `<tr>${rowElems}</tr>`
 
