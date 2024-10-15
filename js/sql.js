@@ -1,12 +1,17 @@
-import { byId } from "./utils.js";
+import { byId, chunkArray } from "./utils.js";
 
-
+let BATCH_SIZE = 300;
 const initSqlJs = window.initSqlJs;
 const SQL = await initSqlJs({
     // Required to load the wasm binary asynchronously. Of course, you can host it wherever you want
     // You can omit locateFile completely when running in node
     locateFile: file => `https://sql.js.org/dist/${file}`
 });
+
+window.setBatchSize = (e) => {
+    BATCH_SIZE = e;
+    console.log(e)
+}
 
 // Create a database
 const db = new SQL.Database();
@@ -55,10 +60,14 @@ const db = new SQL.Database();
 function createAndFillTable(table) {
     let columnNames = table.columnNames.map(e => `${e} varchar(255)`).join()
     let createQuery = `CREATE TABLE ${table.name} (${columnNames})`
-    let tableFillQuery = `INSERT INTO ${table.name} VALUES\n ${table.rows.map(li => "(" + li.join() + ")").join(",\n")};`
 
     db.run(createQuery)
-    db.run(tableFillQuery)
+    let rowBatches = chunkArray(table.rows, BATCH_SIZE)
+    for (let i = 0; i < rowBatches.length; i++) {
+        let tableFillQuery = `INSERT INTO ${table.name} VALUES\n ${rowBatches[i].map(li => "(" + li.join() + ")").join(",\n")};`
+        console.log(tableFillQuery)
+        db.run(tableFillQuery)
+    }
     // postSqlMessageWorker(createQuery)
     // postSqlMessageWorker(tableFillQuery)
 }
