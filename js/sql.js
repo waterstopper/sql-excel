@@ -64,6 +64,15 @@ function createAndFillTable(table) {
     db.run(createQuery)
     let rowBatches = chunkArray(table.rows, BATCH_SIZE)
     for (let i = 0; i < rowBatches.length; i++) {
+        for (let j = 0; j < rowBatches[i].length; j++) {
+            const arr = rowBatches[i][j];
+            for (let k = 0; k < arr.length; k++) {
+                const element = arr[k];
+                if(typeof(element) === "undefined") {
+                    rowBatches[i][j][k] = "null";
+                }         
+            }   
+        }
         let tableFillQuery = `INSERT INTO ${table.name} VALUES\n ${rowBatches[i].map(li => "(" + li.join() + ")").join(",\n")};`
         console.log(tableFillQuery)
         db.run(tableFillQuery)
